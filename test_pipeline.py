@@ -3,8 +3,7 @@
     python -m pytest test_pipeline.py -q
 
 Covers the load, the Part 2 arithmetic, the Part 3 statistics and the
-Part 4 filters. The point is to catch the failures that would quietly
-produce a wrong number rather than an exception.
+Part 4 filters. 
 """
 
 from __future__ import annotations
