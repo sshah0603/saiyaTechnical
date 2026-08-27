@@ -6,11 +6,7 @@ responders from non-responders in melanoma, and serves the result as an
 interactive dashboard.
 
 
-Both open in a browser with nothing installed. To run locally, see below.
-
-![Stacked composition of all samples](docs/part2_composition.png)
-
-![Boxplot of population frequency by response](docs/part3_responder_boxplot.png)
+Both open in a browser with nothing installed. 
 
 ---
 
