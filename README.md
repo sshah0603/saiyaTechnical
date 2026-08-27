@@ -7,7 +7,7 @@ interactive dashboard.
 
 Both open in a browser with nothing installed. 
 
-**Dashboard:** REPLACE_WITH_STREAMLIT_URL
+**Dashboard:** [https://saiyatechnical.streamlit.app/]
 
 
 
