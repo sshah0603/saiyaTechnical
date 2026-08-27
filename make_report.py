@@ -3,9 +3,9 @@
 
     python make_report.py
 
-Same numbers and same figures as the dashboard, in a single file that
-opens in any browser. Useful for sending to someone who is not going to
-install Streamlit.
+Purpose of this is to make the same numbers and same figures as the dashboard, but to put it in a single file that
+opens in any browser. This is useful for sending to someone who is not going to use the GitHub and just needs the results. 
+This is also what I typially give members of my lab who don't know how to code. 
 """
 
 from __future__ import annotations
