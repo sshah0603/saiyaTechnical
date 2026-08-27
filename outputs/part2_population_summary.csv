@@ -1,0 +1,6 @@
+population,label,mean_pct,sd,min_pct,max_pct
+b_cell,B cell,9.882,3.097,1.691,25.116
+cd4_t_cell,CD4+ T,30.275,4.813,14.258,49.03
+cd8_t_cell,CD8+ T,24.906,4.465,11.167,45.291
+nk_cell,NK cell,14.917,3.727,3.982,32.047
+monocyte,Monocyte,20.02,4.192,5.795,37.937
