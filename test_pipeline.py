@@ -203,3 +203,96 @@ def test_breakdown_totals_reconcile(conn):
 def test_breakdown_handles_empty():
     cuts = an.baseline_breakdown(pd.DataFrame())
     assert all(df.empty for df in cuts.values())
+
+
+# ---------------------------------------------------------------- packaging
+
+def test_load_data_is_in_repo_root():
+    """Part 1 requires load_data.py at the root, not under src/."""
+    assert (ROOT / "load_data.py").is_file()
+
+
+def test_load_data_runs_standalone(tmp_path):
+    """The script must work with nothing beside it but the CSV.
+
+    Guards the case where a reviewer copies load_data.py and the data file
+    into an empty directory and runs it. Reading schema.sql off disk used to
+    break exactly here.
+    """
+    import shutil
+
+    shutil.copy(ROOT / "load_data.py", tmp_path / "load_data.py")
+    shutil.copy(ROOT / "cell-count.csv", tmp_path / "cell-count.csv")
+
+    proc = subprocess.run(
+        [sys.executable, "load_data.py"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, proc.stderr
+    created = list(tmp_path.glob("*.db"))
+    assert len(created) == 1, f"expected one .db file, found {created}"
+
+
+def test_embedded_schema_matches_schema_sql():
+    """schema.sql is documentation. Fail if it drifts from what the loader runs."""
+    import load_data
+
+    assert load_data.SCHEMA_SQL.strip() == (ROOT / "schema.sql").read_text().strip()
+
+
+def test_db_lands_in_repo_root():
+    subprocess.run([sys.executable, "load_data.py"], cwd=ROOT, check=True)
+    assert (ROOT / "cell_counts.db").is_file()
+
+
+# ---------------------------------------------------------------- make targets
+
+MAKEFILE = ROOT / "Makefile"
+
+
+def test_makefile_declares_required_targets():
+    """The grader runs setup, pipeline and dashboard by name."""
+    text = MAKEFILE.read_text()
+    for target in ["setup:", "pipeline:", "dashboard:"]:
+        assert f"\n{target}" in text, f"Makefile is missing the {target} target"
+
+
+def test_makefile_uses_tabs_for_recipes():
+    """A recipe indented with spaces fails with 'missing separator'."""
+    for i, line in enumerate(MAKEFILE.read_text().splitlines(), start=1):
+        if line.startswith("    ") and not line.lstrip().startswith("#"):
+            raise AssertionError(f"Makefile line {i} is space-indented, use a tab")
+
+
+def test_pipeline_produces_every_output():
+    """make pipeline must leave a complete set of tables and plots behind."""
+    subprocess.run([sys.executable, "load_data.py"], cwd=ROOT, check=True)
+    proc = subprocess.run(
+        [sys.executable, "run_pipeline.py"], cwd=ROOT, capture_output=True, text=True
+    )
+    assert proc.returncode == 0, proc.stderr
+
+    expected = [
+        "part2_cell_frequencies.csv",
+        "part2_population_summary.csv",
+        "part2_composition.png",
+        "part2_population_distributions.png",
+        "part3_responder_statistics.csv",
+        "part3_responder_frequencies.csv",
+        "part3_responder_boxplot.png",
+        "part4_baseline_cohort.csv",
+        "part4_counts_by_project.csv",
+        "part4_counts_by_response.csv",
+        "part4_counts_by_sex.csv",
+        "summary.md",
+    ]
+    missing = [f for f in expected if not (ROOT / "outputs" / f).is_file()]
+    assert not missing, f"pipeline did not produce: {missing}"
+
+
+def test_part2_output_columns_match_the_brief():
+    """The brief names the five columns exactly."""
+    df = pd.read_csv(ROOT / "outputs" / "part2_cell_frequencies.csv")
+    assert list(df.columns) == ["sample", "total_count", "population", "count", "percentage"]
