@@ -239,7 +239,7 @@ with tab_response:
             show[col] = show[col].map(lambda v: f"{v:.3g}" if pd.notna(v) else "")
         st.dataframe(show, width="stretch", hide_index=True)
 
-        with st.expander("How to read this table"):
+        with st.expander("Key Table Definitions"):
             st.markdown(
                 """
 - **p_value** is a two sided Mann-Whitney U test. It ranks the two groups rather
