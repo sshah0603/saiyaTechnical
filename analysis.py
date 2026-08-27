@@ -1,9 +1,4 @@
-"""Analysis layer for the Loblaw Bio cell-count database.
-
-Every function takes a sqlite3 connection and returns a pandas DataFrame.
-Filtering happens in SQL so the same predicates are reusable and the
-database stays the single source of truth. Statistics happen in Python
-because SQLite has no rank tests.
+"""Analysis layer.
 
 Parts map to functions as follows:
     Part 2  ->  frequency_table
@@ -34,7 +29,7 @@ def connect(db_path: str | Path = DB_PATH) -> sqlite3.Connection:
     return conn
 
 
-# ---------------------------------------------------------------- Part 2
+# Part 2
 
 FREQUENCY_SQL = """
 SELECT sample, total_count, population, count, percentage
@@ -80,7 +75,7 @@ def annotated_frequencies(conn: sqlite3.Connection) -> pd.DataFrame:
     return pd.read_sql(ANNOTATED_SQL, conn)
 
 
-# ---------------------------------------------------------------- Part 3
+# Part 3
 
 RESPONDER_SQL = ANNOTATED_SQL + """
 WHERE sb.condition = :condition
@@ -246,7 +241,7 @@ def _delta_label(value: float) -> str:
     return "large"
 
 
-# ---------------------------------------------------------------- Part 4
+# Part 4
 
 BASELINE_SQL = """
 SELECT
